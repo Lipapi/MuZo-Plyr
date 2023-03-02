@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MuZo Plyr</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+	<header>
+		<h1>MuZo Plyr</h1>
+		<div class="controls">
+			<button id="previous"><i class="fas fa-step-backward"></i></button>
+			<button id="play"><i class="fas fa-play"></i></button>
+			<button id="pause"><i class="fas fa-pause"></i></button>
+			<button id="next"><i class="fas fa-step-forward"></i></button>
+			<button id="repeat"><span class="repeat-label">R</span></button>
+	
+		</div>
+		<p id="quote" style="text-align: right; font-weight: bold;"></p>
+		<p id="date" style="text-align: right; font-weight: bold;"></p>
+
+		<!-- Add any other header content here -->
+	</header>
+
+
+	<div id="player-container">
+		<div id="song-info">
+		  <img id="album-cover" src="images/cover.jpg" alt="Album Cover">
+		</div>
+	
+	<div class="visualization-bar">
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+		<div class="visualization-block"></div>
+	  </div>
+	  
+  
+	  <select id="songs">
+		<option value="">Pardon My Plot EP</option>
+		<option value="music/Drive Slow(Beat Prod. Joerenner).mp3" data-thumbnail="images/cover.jpg">Drive Slow</option>
+		<option value="music/Ms. Barbie(Beat prod.Scarim).mp3" data-thumbnail="images/cover.jpg">Ms. Barbie</option>
+		<option value="music/Pardon Me(Beat prod. WaveyyBeats x ferno).mp3" data-thumbnail="images/cover.jpg">Pardon Me</option>
+		<option value="music/Pinky Swear(Beat prod. Rrroby Beats).mp3" data-thumbnail="images/cover.jpg">Pinky Swear</option>
+		<option value="music/Superman (Interlude).mp3" data-thumbnail="images/cover.jpg">Superman (Interlude)</option>
+		<option value="music/Superman(Beat prod. KIRA BEATZ).128.mp3" data-thumbnail="images/cover.jpg">Superman</option>
+		<option value="music/Visions (Beat prod. WaveyyBeats x KXVI).mp3" data-thumbnail="images/cover.jpg">Visions</option>
+		<option value="music/We Plotin (Beat prod. WaveyyBeats x youngsadtrippin).mp3" data-thumbnail="images/cover.jpg">We Plotin</option>
+	  </select>
+	  
+	  <img id="thumbnail" src="" alt="Thumbnail" />
+	 
+	<audio id="audio" preload="metadata">
+		<source id="audio-source" src="">
+	</audio>
+
+	<script>
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('play');
+    const pauseBtn = document.getElementById('pause');
+    const songs = document.getElementById('songs');
+    const prevBtn = document.getElementById('previous');
+    const nextBtn = document.getElementById('next');
+    const repeatBtn = document.getElementById('repeat');
+    const visualizationBlock = document.querySelector('.visualization-block');
+
+// Load the selected song when the dropdown selection changes
+songs.addEventListener('change', () => {
+  audio.src = songs.value;
+  audio.load();
+});
+
+// Play the audio when the "Play" button is clicked
+playBtn.addEventListener('click', () => {
+  audio.play();
+});
+
+// Pause and resume the audio when the "Pause" button is clicked
+pauseBtn.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+});
+
+// Move to the previous song when the "previous" button is clicked
+prevBtn.addEventListener('click', () => {
+  const currentIndex = songs.selectedIndex;
+  const newIndex = (currentIndex - 1 + songs.options.length) % songs.options.length; // Handle wraparound
+  songs.selectedIndex = newIndex;
+  audio.src = songs.value;
+  audio.load();
+  audio.play(); // Start playing the new song
+});
+
+// Move to the next song when the "next" button is clicked
+nextBtn.addEventListener('click', () => {
+  const currentIndex = songs.selectedIndex;
+  const newIndex = (currentIndex + 1) % songs.options.length; // Handle wraparound
+  songs.selectedIndex = newIndex;
+  audio.src = songs.value;
+  audio.load();
+  audio.play(); // Start playing the new song
+});
+
+
+repeatBtn.addEventListener('click', () => {
+  repeatBtn.classList.toggle('active');
+  if (repeatBtn.classList.contains('active')) {
+    repeatBtn.style.color = 'red';
+  } else {
+    repeatBtn.style.color = '';
+  }
+});
+
+audio.addEventListener('ended', () => {
+  if (repeatBtn.classList.contains('active')) {
+    audio.currentTime = 0;
+    audio.play();
+  } else {
+    nextBtn.click();
+  }
+});
+
+
+
+// Update the visualization bar to show the progress of the song
+audio.addEventListener('timeupdate', () => {
+  const percentComplete = audio.currentTime / audio.duration;
+  visualizationBlock.style.width = `${percentComplete * 100}%`;
+});
+
+audio.addEventListener('timeupdate', () => {
+  if (!audio.paused) {
+    const percentComplete = audio.currentTime / audio.duration;
+    visualizationBlock.style.width = `${percentComplete * 100}%`;
+  }
+});
+
+const songsSelect = document.querySelector('#songs');
+const thumbnailImg = document.querySelector('#thumbnail');
+
+songsSelect.addEventListener('change', (event) => {
+  const selectedOption = event.target.selectedOptions[0];
+  const thumbnailSrc = selectedOption.dataset.thumbnail;
+  thumbnailImg.src = thumbnailSrc;
+  audio.src = selectedOption.value;
+  audio.play();
+});
+
+audio.addEventListener('play', () => {
+  thumbnailImg.style.display = 'block';
+});
+
+audio.addEventListener('ended', () => {
+  thumbnailImg.style.display = 'none';
+});
+
+
+const quoteElem = document.getElementById('quote');
+const dateElem = document.getElementById('date');
+
+// Daily musical quote
+const quotes = [  "Music is the universal language of mankind. - Henry Wadsworth Longfellow",  
+"Music is the art of thinking with sounds. - Jules Combarieu",    
+"Music is a higher revelation than all wisdom and philosophy. - Ludwig van Beethoven",   
+"Music can change the world because it can change people. - Bono",  
+"Music is the poetry of the air. - Jean Paul Richter",  
+"Music is a language that doesn't speak in particular words. It speaks in emotions, and if it's in the bones, it's in the bones. - Keith Richards",  
+"Music is the wine that fills the cup of silence. - Robert Fripp",  
+"Music is the shorthand of emotion. - Leo Tolstoy",  
+"Music is the strongest form of magic. - Marilyn Manson",  
+"Music is the voice that tells us that the human race is greater than it knows. - Napoleon Bonaparte",  
+"Music is the soundtrack of your life. - Dick Clark",  
+"Music is the divine way to tell beautiful, poetic things to the heart. - Pablo Casals",   
+"Music is the wine that fills the cup of silence. - Robert Fripp",   
+"Music is the medicine of the mind. - John A. Logan",      
+"Music is the art which can most nimbly move the passions and induce the affections. - British essayist Joseph Addison",     
+"Music is a language that doesn't speak in particular words. It speaks in emotions, and if it's in the bones, it's in the bones. - Keith Richards",        
+"Music is the art which is most nigh to tears and memories. - Oscar Wilde",    
+
+];
+const todayQuote = quotes[new Date().getDay() % quotes.length];
+quoteElem.textContent = todayQuote;
+
+// Today's date
+const today = new Date();
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const dateString = today.toLocaleDateString('en-US', options);
+dateElem.textContent = dateString;
+
+
+
+
+</script>
+  
+  
