@@ -1,8 +1,10 @@
 body {
     background-image: url("images/background.jpg");
     background-size: cover;
+    text-shadow: 2px 2px 2px rgb(245, 7, 7);;
     font-family: Arial, sans-serif;
-    color: white;
+    color: rgb(231, 235, 11);
+    font-size: 18px;
 }
 
 .controls {
